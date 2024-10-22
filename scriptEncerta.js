@@ -1,4 +1,5 @@
 function compara() {
+
     setTimeout(() => {
         let randValue = sessionStorage.getItem("randValue");
 
@@ -22,3 +23,13 @@ function compara() {
         }
     }, 100)
 }
+
+let cuentaAtras = 7;
+let intervalRef = setInterval(() => {
+    document.getElementById("cuentaAtras").innerText = cuentaAtras;
+    if (cuentaAtras === 0) {
+        window.close("./encerta.html");
+        closeInterval(intervalRef);
+    };
+    cuentaAtras--;
+}, 1000)
