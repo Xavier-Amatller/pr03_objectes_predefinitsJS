@@ -6,8 +6,7 @@
 // si el valor dins el input és igual al número aleatori.
 // e. Si s’encerta el número, tanca encerta.html des de exercici02.html
 // f. Passats 7 segons, tanca encerta.html des de ella mateixa.
-// g. Un cop tancada encerta.html, mostra dins exercici02.html el número d’intents (a més
-// d’indicar si s’ha encertat o no el número).
+// g. Un cop tancada encerta.html, mostra dins exercici02.html el número d’intents (a més d’indicar si s’ha encertat o no el número).
 // h. Guarda en una cookie si s’ha encertat o no el número en l’últim intent.
 // i. Al carregar encerta.html, mostra si s’ha encertat o no en l’últim intent. 
 function startGame() {

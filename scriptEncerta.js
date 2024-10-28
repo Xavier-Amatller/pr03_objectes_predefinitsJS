@@ -12,10 +12,12 @@ function compara() {
         mensajeError.innerText = "";
 
         if (isNaN(inpValue) || inpValue < 5 || inpValue > 10) {
-            mensajeError.innerText = "Introduce un valor numerico entre 5 y 10"
+            mensajeError.innerText = "Introduce un valor numerico entre 5 y 10";
         } else {
             if (inpValue === randValue) {
                 mensaje.innerText = "Has acertado!!";
+                window.opener.document.getElementById("resultado").innerText = `Has encertat el número`;
+
                 setTimeout(() => { window.close("./encerta.html") }, 2000);
             } else {
                 mensaje.innerText = "Haz fallado vuelve a intentarlo";
