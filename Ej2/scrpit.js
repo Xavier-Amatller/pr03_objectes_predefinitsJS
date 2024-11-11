@@ -1,38 +1,54 @@
-/*TEMPORIZADOR*/
-
-let btnStart = document.getElementById("btn-start");
-let divTemporizador = document.getElementById("div-temporizador");
 let TIEMPOINICIAL = 30;
 let intervalRef = "";
+let numVentanasAGenerar = Math.floor(Math.random() * 10 + 5);
+let ultimasDosVentanasClicadas = [];
+let arrayVentanasActivas = [];
+let contadorVentanasActivas = 0;
 
-let numVentanasAGenerar = Math.floor(Math.random() * 30)
-let ventanasAbiertas = [];
-
-btnStart.addEventListener("click", () => {
+document.getElementById("btn-start").addEventListener("click", () => {
     /*Poner valores default */
     clearInterval(intervalRef);
-    document.getElementById("avisos").innerText = "";
-    // generarVentanaAleatoria();
+    arrayVentanasActivas = [];
+
+    document.getElementById("ventanasActivas").innerText = "";
+    document.getElementById("mensajeFinal").innerText = "";
+
     let segundosTemp = TIEMPOINICIAL;
+
     intervalRef = setInterval(() => {
         /*Mostramos los segundos por pantalla*/
-        divTemporizador.innerText = segundosTemp;
+        document.getElementById("div-temporizador").innerText = segundosTemp;
+        document.getElementById("ventanasActivas").innerText = "Ventanas Activas: " + contadorVentanasActivas;
 
         if (segundosTemp == TIEMPOINICIAL - 3) {
             /*GENERAR PANTALLAS*/
+            for (let index = 0; index < numVentanasAGenerar; index++) {
+                generarVentanaAleatoria();
+            }
+            document.getElementById("totalVentanasGeneradas").innerHTML = "Ventanas Generadas: " +
+                numVentanasAGenerar;
+        }
 
-            document.getElementById("avisos").innerText = "FIESTA!!"
-
+        if (contadorVentanasActivas == 0 && segundosTemp < TIEMPOINICIAL - 3) {
+            acabarPartida();
+            document.getElementById("mensajeFinal").innerText = "Has ganado, muy BIEN!";
         }
 
         if (segundosTemp <= 0) {
-            /* AQUI VA LA LOGICA DE CUANDO SE ACABA EL JUEGO*/
-
-            clearInterval(intervalRef);
+            acabarPartida();
+            document.getElementById("mensajeFinal").innerText = "Has perdido, que pena!, vuelve a intentarlo!";
         }
         segundosTemp--;
     }, 1000);
 });
+
+function mismaVentana() {
+    return ultimasDosVentanasClicadas.every(elemento => elemento === ultimasDosVentanasClicadas[0]);
+}
+
+function comprobarColorVentanas() {
+    return ultimasDosVentanasClicadas[0].document.body.innerText == ultimasDosVentanasClicadas[1].document.body.innerText;
+}
 
 function generarVentanaAleatoria() {
 
@@ -51,8 +67,13 @@ function generarVentanaAleatoria() {
 
     let windowRef = window.open("", Math.random() + "", windowFeatures);
 
-    ventanasAbiertas.push(windowRef);
-    console.log(ventanasAbiertas);
+    let windowBody = windowRef.document.body;
+
+    windowBody.style.backgroundImage = pkmSeleccionado['img'];
+    windowBody.innerHTML = pkmSeleccionado["name"];
+    windowBody.style.color = pkmSeleccionado["color"];
+
+
 
     /*MOVER VENTANA*/
     // Dimensiones de la ventana
@@ -61,22 +82,68 @@ function generarVentanaAleatoria() {
 
     let x;
     let y;
-
-    if (ventanasAbiertas.length == 1) {
+    if (contadorVentanasActivas.length == 0) {// Mueve la ventana al centro
         x = (screen.width - width) / 2;
         y = (screen.height - height) / 2;
-    } else {
+    } else {                           //Mueve la ventana a una posicion aleatoria
         x = (screen.width - Math.floor(Math.random() * screen.width));
         y = (screen.height - Math.floor(Math.random() * screen.height));
     }
-    // Mueve la ventana al centro
+
     windowRef.moveTo(x, y);
 
-    let windowBody = windowRef.document.body;
-    windowBody.style.backgroundImage = pkmSeleccionado['img'];
-    windowBody.innerHTML = pkmSeleccionado["name"];
-    windowBody.style.color = pkmSeleccionado["color"];
+    /*Al clicar*/
+    windowRef.addEventListener("click", () => { ventanaClicada(windowRef) });
 
+    contadorVentanasActivas++;
+    arrayVentanasActivas.push(windowRef);
+    console.log(arrayVentanasActivas);
+    console.log(contadorVentanasActivas);
+}
 
-    return windowRef;
+function ventanaClicada(windowRef) {
+
+    console.log("has clicado en un" + windowRef.document.body.style.color);
+
+    ultimasDosVentanasClicadas.push(windowRef);
+
+    if (!ultimasDosVentanasClicadas[1]) {
+
+        console.log("primerClick en ventana");
+
+    } else {
+
+        if (mismaVentana()) {
+            console.log("mismaVentana");
+            generarVentanaAleatoria();
+
+        } else {
+
+            if (comprobarColorVentanas()) {
+                console.log("true");
+
+                arrayVentanasActivas = arrayVentanasActivas.filter(
+                    ventana => !ultimasDosVentanasClicadas.includes(ventana)
+                );
+
+                ultimasDosVentanasClicadas[0].close();
+                ultimasDosVentanasClicadas[1].close();
+                contadorVentanasActivas -= 2;
+            }
+
+        }
+        ultimasDosVentanasClicadas = [];
+    }
+}
+
+document.getElementById("acabarPartida").addEventListener("click", () => {
+    acabarPartida()
+    document.getElementById("mensajeFinal").innerText = "Has acabado, vuelve a intentarlo!";
+});
+
+function acabarPartida() {
+    clearInterval(intervalRef);
+    arrayVentanasActivas.forEach(element => {
+        element.close();
+    });
 }
