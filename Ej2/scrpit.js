@@ -9,34 +9,39 @@ document.getElementById("btn-start").addEventListener("click", () => {
     /*Poner valores default */
     clearInterval(intervalRef);
     arrayVentanasActivas = [];
+    contadorVentanasActivas = 0;
 
+    document.getElementById("totalVentanasGeneradas").innerText = "";
     document.getElementById("ventanasActivas").innerText = "";
     document.getElementById("mensajeFinal").innerText = "";
+    document.getElementById("ventanasUltimaPartida").innerText = getCookie("numeroVentanasGeneradas");
+    document.getElementById("resultadoUltimaPartida").innerText = getCookie("resultadoPartida");
+
+    ;
 
     let segundosTemp = TIEMPOINICIAL;
 
     intervalRef = setInterval(() => {
         /*Mostramos los segundos por pantalla*/
         document.getElementById("div-temporizador").innerText = segundosTemp;
-        document.getElementById("ventanasActivas").innerText = "Ventanas Activas: " + contadorVentanasActivas;
+        document.getElementById("ventanasActivas").innerText = contadorVentanasActivas;
 
         if (segundosTemp == TIEMPOINICIAL - 3) {
             /*GENERAR PANTALLAS*/
             for (let index = 0; index < numVentanasAGenerar; index++) {
                 generarVentanaAleatoria();
             }
-            document.getElementById("totalVentanasGeneradas").innerHTML = "Ventanas Generadas: " +
-                numVentanasAGenerar;
+            document.getElementById("totalVentanasGeneradas").innerHTML = numVentanasAGenerar;
         }
 
         if (contadorVentanasActivas == 0 && segundosTemp < TIEMPOINICIAL - 3) {
-            acabarPartida();
             document.getElementById("mensajeFinal").innerText = "Has ganado, muy BIEN!";
+            acabarPartida("Ganado");
         }
 
         if (segundosTemp <= 0) {
-            acabarPartida();
             document.getElementById("mensajeFinal").innerText = "Has perdido, que pena!, vuelve a intentarlo!";
+            acabarPartida("Perdido");
         }
         segundosTemp--;
     }, 1000);
@@ -50,8 +55,10 @@ function comprobarColorVentanas() {
     return ultimasDosVentanasClicadas[0].document.body.innerText == ultimasDosVentanasClicadas[1].document.body.innerText;
 }
 
+let numeroVentanasGeneradas = 0;
 function generarVentanaAleatoria() {
 
+    numeroVentanasGeneradas++;
     let pokemons = [
         { "name": "bulbasaur", "color": "green", "img": "url('https://images.wikidexcdn.net/mwuploads/wikidex/archive/4/43/20150621055301%21Bulbasaur.png')" },
         { "name": "squirtle", "color": "blue", "img": "url('https://images.wikidexcdn.net/mwuploads/wikidex/archive/e/e3/20160309230820%21Squirtle.png')" },
@@ -137,13 +144,40 @@ function ventanaClicada(windowRef) {
 }
 
 document.getElementById("acabarPartida").addEventListener("click", () => {
-    acabarPartida()
+    acabarPartida("Partida acabada manualmente")
     document.getElementById("mensajeFinal").innerText = "Has acabado, vuelve a intentarlo!";
 });
 
-function acabarPartida() {
+function acabarPartida(resultado) {
     clearInterval(intervalRef);
     arrayVentanasActivas.forEach(element => {
         element.close();
     });
+    setCookie("numeroVentanasGeneradas", numeroVentanasGeneradas, 1);
+    setCookie("resultadoPartida", resultado, 1);
 }
+
+
+function setCookie(cname, cvalue, exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    let expires = "expires=" + d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function getCookie(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
